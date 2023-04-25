@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rastreamento por mapa</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+  <style>
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+  <script src="socket.io.js"></script>
+  <script>
+	//url para escutar o canal e pegar as cordenadas com socket.io
+	var url = '';
+	//cria conexão para receber as posições
+	const socket = new io(url);
+	//fica escutando o canal positions
+	socket.on('positions', function (msg) {
+	  let dados = JSON.parse(msg);
+	  console.log('dados',dados);
+	  atualizarPosicao(dados.lat, dados.lon);
+  });
+
+	var mapa = document.createElement('div');
+  mapa.style.height = window.innerHeight + 'px';
+  document.body.appendChild(mapa);
+  var myMap = L.map(mapa).setView([-19.8790327,-47.2111807], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(myMap);
+
+  var marker = L.marker([-19.8790327,-47.2111807]).addTo(myMap);
+  marker.bindPopup("<b>Olá!</b><br>Estou Aqui!").openPopup();
+
+  function atualizarPosicao(lat,long) {
+	var novaLat = lat;
+  var novaLng = long;
+  var novaPosicao = new L.LatLng(novaLat, novaLng);
+  marker.setLatLng(novaPosicao);
+  myMap.panTo(novaPosicao);
+  }
+  </script>
+</body>
+</html>
